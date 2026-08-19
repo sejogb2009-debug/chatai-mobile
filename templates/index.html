@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#2563eb">
+
+    <title>ChatAI Mobile</title>
+
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+
+<body>
+
+<div class="container">
+
+    <header class="header">
+
+        <div class="header-content">
+
+            <h1>
+                <i class="fas fa-robot"></i>
+                ChatAI Mobile
+            </h1>
+
+            <div class="status-indicator">
+                <span class="status-dot" id="statusDot"></span>
+                <span id="statusText">Conectando...</span>
+            </div>
+
+        </div>
+
+        <div class="controls">
+
+            <button class="btn btn-secondary" id="clearBtn">
+                <i class="fas fa-trash"></i>
+                Limpiar
+            </button>
+
+            <button class="btn btn-secondary" id="modelBtn">
+                <i class="fas fa-cog"></i>
+                Modelo
+            </button>
+
+            <button class="btn btn-secondary icon-btn" id="infoBtn">
+                <i class="fas fa-info-circle"></i>
+            </button>
+
+        </div>
+
+    </header>
+
+    <main class="chat-container" id="chatContainer"></main>
+
+    <div class="input-area">
+
+        <div class="input-container">
+
+            <textarea
+                id="messageInput"
+                placeholder="Escribe tu mensaje..."
+                rows="1"></textarea>
+
+            <button
+                id="sendBtn"
+                class="btn btn-primary send-btn">
+
+                <i class="fas fa-paper-plane"></i>
+
+            </button>
+
+        </div>
+
+        <div class="input-footer">
+            Modelo:
+            <span id="currentModel">gpt-5.6</span>
+        </div>
+
+    </div>
+
+</div>
+
+<div class="modal" id="modelModal">
+
+    <div class="modal-content">
+
+        <div class="modal-header">
+
+            <h3>Seleccionar modelo</h3>
+
+            <button class="close-modal">×</button>
+
+        </div>
+
+        <div class="modal-body">
+
+            <div id="modelList" class="model-list"></div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<div class="modal" id="infoModal">
+
+    <div class="modal-content">
+
+        <div class="modal-header">
+
+            <h3>Información</h3>
+
+            <button class="close-modal">×</button>
+
+        </div>
+
+        <div class="modal-body">
+
+            <div id="serverInfo">
+                Cargando...
+            </div>
+
+            <p class="note">
+                La API Key permanece protegida en el servidor.
+            </p>
+
+        </div>
+
+    </div>
+
+</div>
+
+<div class="loading-overlay" id="loadingOverlay">
+
+    <div class="loading-spinner"></div>
+
+    <p>Pensando...</p>
+
+</div>
+
+<script src="{{ url_for('static', filename='js/script.js') }}"></script>
+
+</body>
+</html>
