@@ -12,15 +12,11 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 app = Flask(__name__)
-app.secret_key = os.getenv(
-    "FLASK_SECRET_KEY",
-    "chatai-mobile-secret"
-)
-
+app.secret_key = os.getenv("FLASK_SECRET_KEY", "chatai-mobile-secret")
 CORS(app)
 
 # =========================
-# GROQ
+# CONFIGURACIÓN GROQ
 # =========================
 
 GROQ_API_KEY = os.getenv("GROQ_API_KEY")
@@ -30,10 +26,8 @@ if GROQ_API_KEY:
 else:
     client = None
 
-# Modelo actual de Groq
-DEFAULT_MODEL = "llama-3.3-70b-versatile"
+DEFAULT_MODEL = "openai/gpt-oss-20b"
 
-# Historial de conversaciones
 conversations = {}
 
 
@@ -54,7 +48,6 @@ def index():
 def chat():
 
     try:
-
         data = request.get_json()
 
         if not data:
@@ -63,84 +56,57 @@ def chat():
             }), 400
 
         message = data.get("message", "").strip()
-
-        session_id = data.get(
-            "session_id",
-            "default"
-        )
+        session_id = data.get("session_id", "default")
 
         if not message:
             return jsonify({
                 "error": "El mensaje no puede estar vacío"
             }), 400
 
-        # Crear conversación
         if session_id not in conversations:
             conversations[session_id] = []
 
-        # Añadir mensaje del usuario
         conversations[session_id].append({
             "role": "user",
             "content": message
         })
 
-        # Comprobar API Key
         if not client:
-
             return jsonify({
-                "error": "GROQ_API_KEY no está configurada"
+                "error": "GROQ_API_KEY no está configurada en Render"
             }), 500
 
-        # Solicitud a Groq
         response = client.chat.completions.create(
-
             model=DEFAULT_MODEL,
-
             messages=conversations[session_id],
-
             temperature=0.7,
-
             max_tokens=1000
         )
 
-        response_text = (
-            response
-            .choices[0]
-            .message
-            .content
-        )
+        response_text = response.choices[0].message.content
 
-        # Guardar respuesta
         conversations[session_id].append({
             "role": "assistant",
             "content": response_text
         })
 
         return jsonify({
-
             "response": response_text,
-
             "session_id": session_id,
-
             "model": DEFAULT_MODEL
-
         })
 
     except Exception as e:
 
-        logger.exception(
-            "Error en Groq"
-        )
+        logger.exception("Error en Groq")
 
         return jsonify({
-
             "error": str(e)
-
         }), 500
 
 
 # =========================
-# LIMPIAR CHAT
+# LIMPIAR CONVERSACIÓN
 # =========================
 
 @app.route("/api/clear", methods=["POST"])
@@ -158,47 +124,32 @@ def clear_chat():
         conversations[session_id] = []
 
         return jsonify({
-
             "success": True,
-
             "message": "Historial limpiado",
-
             "session_id": session_id
-
         })
 
     except Exception as e:
 
         return jsonify({
-
             "error": str(e)
-
         }), 500
 
 
 # =========================
-# INFORMACIÓN DEL SERVIDOR
+# INFORMACIÓN
 # =========================
 
 @app.route("/api/info")
 def info():
 
     return jsonify({
-
         "status": "online",
-
-        "timestamp":
-            datetime.now().isoformat(),
-
-        "openai_configured":
-            bool(GROQ_API_KEY),
-
-        "active_sessions":
-            len(conversations),
-
-        "mode":
-            "Groq"
-
+        "timestamp": datetime.now().isoformat(),
+        "openai_configured": bool(GROQ_API_KEY),
+        "active_sessions": len(conversations),
+        "mode": "Groq",
+        "model": DEFAULT_MODEL
     })
 
 
@@ -210,44 +161,30 @@ def info():
 def models():
 
     return jsonify({
-
         "models": [
-
             {
-
-                "id":
-                    DEFAULT_MODEL,
-
-                "name":
-                    "Llama 3.3 70B",
-
-                "description":
-                    "Modelo de IA ejecutado mediante Groq"
-
+                "id": DEFAULT_MODEL,
+                "name": "GPT OSS 20B",
+                "description": "Modelo gratuito ejecutado mediante Groq"
             }
-
         ]
-
     })
 
 
 # =========================
-# HEALTH CHECK
+# ESTADO DEL SERVIDOR
 # =========================
 
 @app.route("/health")
 def health():
 
     return jsonify({
-
-        "status":
-            "healthy"
-
+        "status": "healthy"
     })
 
 
 # =========================
-# EJECUTAR SERVIDOR
+# INICIO
 # =========================
 
 if __name__ == "__main__":
@@ -260,11 +197,7 @@ if __name__ == "__main__":
     )
 
     app.run(
-
         host="0.0.0.0",
-
         port=port,
-
         debug=False
-
     )
